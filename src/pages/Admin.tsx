@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
-import LoginForm from '@/components/admin/LoginForm';
 import PlantsManagement from '@/components/admin/PlantsManagement';
 import SettingsManagement from '@/components/admin/SettingsManagement';
 import OrdersManagement from '@/components/admin/OrdersManagement';
@@ -15,8 +14,7 @@ const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e6252
 const SETTINGS_API = 'https://functions.poehali.dev/2cc392a6-5375-4f6d-aead-d8a3ac112c4c';
 
 export default function Admin() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
+  const [adminPassword] = useState('admin123');
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
     phone: '',
@@ -28,98 +26,28 @@ export default function Admin() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const savedPassword = localStorage.getItem('admin_password');
-    if (savedPassword) {
-      validateAndLogin(savedPassword);
-    }
-  }, []);
+    const loadData = async () => {
+      try {
+        const [plantsRes, settingsRes] = await Promise.all([
+          fetch(PLANTS_API),
+          fetch(SETTINGS_API)
+        ]);
 
-  const validateAndLogin = async (password: string) => {
-    try {
-      const response = await fetch(SETTINGS_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ password })
-      });
+        const plantsData = await plantsRes.json();
+        const settingsData = await settingsRes.json();
 
-      const data = await response.json();
-
-      if (response.ok && data.authenticated) {
-        setIsAuthenticated(true);
-        setAdminPassword(password);
-        loadData(password);
-      } else {
-        localStorage.removeItem('admin_password');
-      }
-    } catch (error) {
-      localStorage.removeItem('admin_password');
-    }
-  };
-
-  const handleLogin = async (password: string) => {
-    try {
-      const response = await fetch(SETTINGS_API, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ password })
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.authenticated) {
-        localStorage.setItem('admin_password', password);
-        setIsAuthenticated(true);
-        setAdminPassword(password);
-        loadData(password);
-        toast({
-          title: 'Вход выполнен',
-          description: 'Добро пожаловать в админ-панель'
-        });
-      } else {
+        setPlants(plantsData);
+        setSettings(settingsData);
+      } catch (error) {
         toast({
           title: 'Ошибка',
-          description: 'Неверный пароль',
+          description: 'Не удалось загрузить данные',
           variant: 'destructive'
         });
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось войти в систему',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const loadData = async (pwd: string) => {
-    try {
-      const [plantsRes, settingsRes] = await Promise.all([
-        fetch(PLANTS_API),
-        fetch(SETTINGS_API)
-      ]);
-
-      const plantsData = await plantsRes.json();
-      const settingsData = await settingsRes.json();
-
-      setPlants(plantsData);
-      setSettings(settingsData);
-    } catch (error) {
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось загрузить данные',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  if (!isAuthenticated) {
-    return <LoginForm onLogin={handleLogin} />;
-  }
+    };
+    loadData();
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-accent/20">
@@ -135,10 +63,7 @@ export default function Admin() {
                 <Icon name="Home" size={18} className="mr-2" />
                 На главную
               </Button>
-              <Button variant="outline" onClick={() => {
-                localStorage.removeItem('admin_password');
-                setIsAuthenticated(false);
-              }}>
+              <Button variant="outline" onClick={() => navigate('/')}>
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти
               </Button>

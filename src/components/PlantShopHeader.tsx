@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import CheckoutDialog from '@/components/CheckoutDialog';
 import MyOrdersDialog from '@/components/MyOrdersDialog';
-import AdminPanelDialog from '@/components/admin/AdminPanelDialog';
 
 interface Plant {
   id: number;
@@ -68,7 +68,7 @@ export default function PlantShopHeader({
 }: PlantShopHeaderProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
+  const navigate = useNavigate();
   return (
     <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -231,7 +231,7 @@ export default function PlantShopHeader({
                         <Button 
                           variant="default" 
                           className="w-full justify-start"
-                          onClick={() => setIsAdminPanelOpen(true)}
+                          onClick={() => navigate('/admin')}
                         >
                           <Icon name="Shield" size={18} className="mr-2" />
                           Админ-панель
@@ -346,13 +346,6 @@ export default function PlantShopHeader({
         userEmail={userEmail}
         onGoToCatalog={() => setActiveTab('catalog')}
       />
-
-      {userRole === 'admin' && (
-        <AdminPanelDialog
-          isOpen={isAdminPanelOpen}
-          onClose={() => setIsAdminPanelOpen(false)}
-        />
-      )}
     </>
   );
 }
