@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,8 +20,11 @@ interface CheckoutDialogProps {
   onClose: () => void;
   cart: Plant[];
   calculateTotal: () => number;
-  onOrderComplete: () => void;
+  onOrderComplete: (totalAmount: number) => void;
   onToast: (toast: { title: string; description: string; variant?: 'default' | 'destructive' }) => void;
+  userName: string;
+  userEmail: string;
+  userBalance: number;
 }
 
 const ORDERS_API = 'https://functions.poehali.dev/07df05e5-996a-477f-b3a3-9ace5cab65ce';
@@ -32,16 +35,30 @@ export default function CheckoutDialog({
   cart,
   calculateTotal,
   onOrderComplete,
-  onToast
+  onToast,
+  userName,
+  userEmail,
+  userBalance
 }: CheckoutDialogProps) {
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
+    fullName: userName || '',
+    email: userEmail || '',
     phone: '',
     deliveryAddress: '',
     comment: ''
   });
+  const [paymentMethod, setPaymentMethod] = useState<'balance' | 'card'>('balance');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: userName || prev.fullName,
+        email: userEmail || prev.email
+      }));
+    }
+  }, [isOpen, userName, userEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +67,17 @@ export default function CheckoutDialog({
       onToast({
         title: 'Ошибка',
         description: 'Заполните все обязательные поля',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const totalAmount = calculateTotal();
+
+    if (paymentMethod === 'balance' && userBalance < totalAmount) {
+      onToast({
+        title: 'Недостаточно средств',
+        description: `На балансе: ${userBalance} ₽. Нужно: ${totalAmount} ₽`,
         variant: 'destructive'
       });
       return;
@@ -70,7 +98,9 @@ export default function CheckoutDialog({
           price: item.price,
           quantity: 1
         })),
-        total_amount: calculateTotal()
+        total_amount: totalAmount,
+        payment_method: paymentMethod,
+        status: paymentMethod === 'balance' ? 'paid' : 'pending'
       };
 
       const response = await fetch(ORDERS_API, {
@@ -82,20 +112,24 @@ export default function CheckoutDialog({
       });
 
       if (response.ok) {
-        onToast({
-          title: 'Заказ оформлен!',
-          description: 'Мы свяжемся с вами в ближайшее время'
-        });
+        if (paymentMethod === 'balance') {
+          onOrderComplete(totalAmount);
+        } else {
+          onToast({
+            title: 'Заказ оформлен!',
+            description: 'Мы свяжемся с вами для оплаты'
+          });
+          onOrderComplete(0);
+        }
         
         setFormData({
-          fullName: '',
-          email: '',
+          fullName: userName || '',
+          email: userEmail || '',
           phone: '',
           deliveryAddress: '',
           comment: ''
         });
         
-        onOrderComplete();
         onClose();
       } else {
         throw new Error('Failed to create order');
@@ -143,6 +177,38 @@ export default function CheckoutDialog({
                 <span className="font-bold text-xl text-primary">{calculateTotal()} ₽</span>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg">Способ оплаты</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant={paymentMethod === 'balance' ? 'default' : 'outline'}
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => setPaymentMethod('balance')}
+              >
+                <Icon name="Wallet" size={24} />
+                <div className="text-sm">С баланса</div>
+                <div className="text-xs opacity-80">{userBalance} ₽</div>
+              </Button>
+              <Button
+                type="button"
+                variant={paymentMethod === 'card' ? 'default' : 'outline'}
+                className="h-auto py-4 flex-col gap-2"
+                onClick={() => setPaymentMethod('card')}
+              >
+                <Icon name="CreditCard" size={24} />
+                <div className="text-sm">Картой</div>
+                <div className="text-xs opacity-80">При получении</div>
+              </Button>
+            </div>
+            {paymentMethod === 'balance' && userBalance < calculateTotal() && (
+              <div className="bg-destructive/10 text-destructive p-3 rounded-lg flex items-center gap-2 text-sm">
+                <Icon name="AlertCircle" size={16} />
+                Недостаточно средств. Пополните баланс или выберите другой способ оплаты
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">

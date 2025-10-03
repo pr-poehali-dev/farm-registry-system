@@ -124,8 +124,9 @@ export default function Index() {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
+    const nameInput = form.querySelector('#login-name') as HTMLInputElement;
     const userEmail = emailInput?.value || 'user@example.com';
-    const userName = 'Садовод';
+    const userName = nameInput?.value || 'Садовод';
     const balance = 1000;
     const cashback = 50;
     
@@ -148,8 +149,9 @@ export default function Index() {
     e.preventDefault();
     const form = e.target as HTMLFormElement;
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
+    const nameInput = form.querySelector('#reg-name') as HTMLInputElement;
     const userEmail = emailInput?.value || 'user@example.com';
-    const userName = 'Садовод';
+    const userName = nameInput?.value || 'Садовод';
     const balance = 500;
     const cashback = 0;
     
@@ -195,7 +197,29 @@ export default function Index() {
     localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
-  const handleOrderComplete = () => {
+  const handleOrderComplete = (totalAmount: number) => {
+    if (userBalance >= totalAmount) {
+      const newBalance = userBalance - totalAmount;
+      const cashbackEarned = Math.floor(totalAmount * 0.05);
+      const newCashback = userCashback + cashbackEarned;
+      
+      setUserBalance(newBalance);
+      setUserCashback(newCashback);
+      
+      const savedAuth = localStorage.getItem('user_auth');
+      if (savedAuth) {
+        const authData = JSON.parse(savedAuth);
+        authData.balance = newBalance;
+        authData.cashback = newCashback;
+        localStorage.setItem('user_auth', JSON.stringify(authData));
+      }
+      
+      toast({
+        title: 'Оплата прошла успешно!',
+        description: `Списано ${totalAmount} ₽. Начислен кэшбек: ${cashbackEarned} ₽`
+      });
+    }
+    
     setCart([]);
     localStorage.removeItem('cart');
   };

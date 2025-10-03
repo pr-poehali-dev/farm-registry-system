@@ -36,7 +36,7 @@ interface PlantShopHeaderProps {
   removeFromCart: (index: number) => void;
   calculateTotal: () => number;
   siteName?: string;
-  onOrderComplete: () => void;
+  onOrderComplete: (totalAmount: number) => void;
   onToast: (toast: { title: string; description: string; variant?: 'default' | 'destructive' }) => void;
   userEmail: string;
   userBalance?: number;
@@ -271,6 +271,10 @@ export default function PlantShopHeader({
                     <TabsContent value="login">
                       <form onSubmit={handleLogin} className="space-y-4">
                         <div className="space-y-2">
+                          <Label htmlFor="login-name">Имя</Label>
+                          <Input id="login-name" placeholder="Ваше имя" required />
+                        </div>
+                        <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
                           <Input id="email" type="email" placeholder="your@email.com" required />
                         </div>
@@ -314,6 +318,9 @@ export default function PlantShopHeader({
         calculateTotal={calculateTotal}
         onOrderComplete={onOrderComplete}
         onToast={onToast}
+        userName={userName}
+        userEmail={userEmail}
+        userBalance={userBalance}
       />
 
       <MyOrdersDialog
