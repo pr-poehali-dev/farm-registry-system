@@ -47,6 +47,12 @@ export default function Index() {
 
   useEffect(() => {
     loadData();
+    
+    const interval = setInterval(() => {
+      loadData();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const loadData = async () => {
@@ -68,7 +74,9 @@ export default function Index() {
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
     } finally {
-      setLoading(false);
+      if (loading) {
+        setLoading(false);
+      }
     }
   };
 

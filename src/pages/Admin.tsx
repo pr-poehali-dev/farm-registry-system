@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +26,37 @@ export default function Admin() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  useEffect(() => {
+    const savedPassword = localStorage.getItem('admin_password');
+    if (savedPassword) {
+      validateAndLogin(savedPassword);
+    }
+  }, []);
+
+  const validateAndLogin = async (password: string) => {
+    try {
+      const response = await fetch(SETTINGS_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.authenticated) {
+        setIsAuthenticated(true);
+        setAdminPassword(password);
+        loadData(password);
+      } else {
+        localStorage.removeItem('admin_password');
+      }
+    } catch (error) {
+      localStorage.removeItem('admin_password');
+    }
+  };
+
   const handleLogin = async (password: string) => {
     try {
       const response = await fetch(SETTINGS_API, {
@@ -39,6 +70,7 @@ export default function Admin() {
       const data = await response.json();
 
       if (response.ok && data.authenticated) {
+        localStorage.setItem('admin_password', password);
         setIsAuthenticated(true);
         setAdminPassword(password);
         loadData(password);
@@ -102,7 +134,10 @@ export default function Admin() {
                 <Icon name="Home" size={18} className="mr-2" />
                 На главную
               </Button>
-              <Button variant="outline" onClick={() => setIsAuthenticated(false)}>
+              <Button variant="outline" onClick={() => {
+                localStorage.removeItem('admin_password');
+                setIsAuthenticated(false);
+              }}>
                 <Icon name="LogOut" size={18} className="mr-2" />
                 Выйти
               </Button>
