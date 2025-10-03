@@ -37,6 +37,7 @@ export default function Index() {
   const [userEmail, setUserEmail] = useState('');
   const [userBalance, setUserBalance] = useState(0);
   const [userCashback, setUserCashback] = useState(0);
+  const [userRole, setUserRole] = useState<'user' | 'admin'>('user');
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
     phone: '',
@@ -63,6 +64,7 @@ export default function Index() {
         setUserEmail(authData.userEmail || '');
         setUserBalance(authData.balance || 0);
         setUserCashback(authData.cashback || 0);
+        setUserRole(authData.role || 'user');
       } else {
         localStorage.removeItem('user_auth');
       }
@@ -127,22 +129,46 @@ export default function Index() {
     const nameInput = form.querySelector('#login-name') as HTMLInputElement;
     const userEmail = emailInput?.value || 'user@example.com';
     const userName = nameInput?.value || 'Садовод';
-    const balance = 1000;
-    const cashback = 50;
     
-    setIsAuthenticated(true);
-    setUserName(userName);
-    setUserEmail(userEmail);
-    setUserBalance(balance);
-    setUserCashback(cashback);
-    
-    const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, expiry }));
-    
-    toast({
-      title: 'Добро пожаловать!',
-      description: 'Вы успешно вошли в систему'
-    });
+    if (userEmail === 'admin@plantshop.ru') {
+      const role = 'admin';
+      const balance = 999999;
+      const cashback = 0;
+      
+      setIsAuthenticated(true);
+      setUserName('Администратор');
+      setUserEmail(userEmail);
+      setUserBalance(balance);
+      setUserCashback(cashback);
+      setUserRole(role);
+      
+      const expiry = Date.now() + 24 * 60 * 60 * 1000;
+      localStorage.setItem('user_auth', JSON.stringify({ userName: 'Администратор', userEmail, balance, cashback, role, expiry }));
+      
+      toast({
+        title: 'Добро пожаловать, Администратор!',
+        description: 'Вы вошли с правами администратора'
+      });
+    } else {
+      const balance = 1000;
+      const cashback = 50;
+      const role = 'user';
+      
+      setIsAuthenticated(true);
+      setUserName(userName);
+      setUserEmail(userEmail);
+      setUserBalance(balance);
+      setUserCashback(cashback);
+      setUserRole(role);
+      
+      const expiry = Date.now() + 15 * 60 * 1000;
+      localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, role, expiry }));
+      
+      toast({
+        title: 'Добро пожаловать!',
+        description: 'Вы успешно вошли в систему'
+      });
+    }
   };
 
   const handleRegister = (e: React.FormEvent) => {
@@ -154,15 +180,17 @@ export default function Index() {
     const userName = nameInput?.value || 'Садовод';
     const balance = 500;
     const cashback = 0;
+    const role = 'user';
     
     setIsAuthenticated(true);
     setUserName(userName);
     setUserEmail(userEmail);
     setUserBalance(balance);
     setUserCashback(cashback);
+    setUserRole(role);
     
     const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, expiry }));
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, role, expiry }));
     
     toast({
       title: 'Регистрация успешна!',
@@ -261,6 +289,7 @@ export default function Index() {
         userEmail={userEmail}
         userBalance={userBalance}
         userCashback={userCashback}
+        userRole={userRole}
       />
 
       <main className="container mx-auto px-4 py-8">
