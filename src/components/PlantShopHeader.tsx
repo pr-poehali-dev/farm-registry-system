@@ -225,16 +225,14 @@ export default function PlantShopHeader({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      {userRole === 'admin' && (
-                        <Button 
-                          variant="default" 
-                          className="w-full justify-start"
-                          onClick={() => setIsAdminPanelOpen(true)}
-                        >
-                          <Icon name="Shield" size={18} className="mr-2" />
-                          Админ-панель
-                        </Button>
-                      )}
+                      <Button 
+                        variant="default" 
+                        className="w-full justify-start"
+                        onClick={() => setIsAdminPanelOpen(true)}
+                      >
+                        <Icon name="Shield" size={18} className="mr-2" />
+                        Админ-панель
+                      </Button>
                       <Button 
                         variant="outline" 
                         className="w-full justify-start"

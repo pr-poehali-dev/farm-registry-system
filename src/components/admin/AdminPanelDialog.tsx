@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import PlantsManagement from './PlantsManagement';
 import OrdersManagement from './OrdersManagement';
@@ -17,6 +20,8 @@ const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e6252
 const SETTINGS_API = 'https://functions.poehali.dev/2cc392a6-5375-4f6d-aead-d8a3ac112c4c';
 
 export default function AdminPanelDialog({ isOpen, onClose }: AdminPanelDialogProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
   const [activeAdminTab, setActiveAdminTab] = useState('plants');
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
@@ -31,9 +36,42 @@ export default function AdminPanelDialog({ isOpen, onClose }: AdminPanelDialogPr
 
   useEffect(() => {
     if (isOpen) {
-      loadData();
+      const savedAuth = localStorage.getItem('admin_auth');
+      if (savedAuth) {
+        setIsAuthenticated(true);
+        loadData();
+      }
+    } else {
+      setPasswordInput('');
+      setIsAuthenticated(false);
     }
   }, [isOpen]);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === adminPassword) {
+      setIsAuthenticated(true);
+      localStorage.setItem('admin_auth', 'true');
+      loadData();
+      toast({
+        title: 'Успешно',
+        description: 'Вход в админ-панель выполнен'
+      });
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Неверный пароль',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('admin_auth');
+    setPasswordInput('');
+    onClose();
+  };
 
   const loadData = async () => {
     try {
@@ -56,14 +94,52 @@ export default function AdminPanelDialog({ isOpen, onClose }: AdminPanelDialogPr
     }
   };
 
+  if (!isAuthenticated) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Shield" size={24} className="text-primary" />
+              Вход в админ-панель
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleLogin} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="admin-password">Пароль</Label>
+              <Input
+                id="admin-password"
+                type="password"
+                placeholder="Введите пароль"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              <Icon name="LogIn" size={18} className="mr-2" />
+              Войти
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon name="Shield" size={24} className="text-primary" />
-            Панель администратора
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="flex items-center gap-2">
+              <Icon name="Shield" size={24} className="text-primary" />
+              Панель администратора
+            </DialogTitle>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <Icon name="LogOut" size={16} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </DialogHeader>
 
         <Tabs value={activeAdminTab} onValueChange={setActiveAdminTab} className="flex-1 flex flex-col overflow-hidden">
