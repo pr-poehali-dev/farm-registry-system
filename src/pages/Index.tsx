@@ -130,9 +130,10 @@ export default function Index() {
     const userEmail = emailInput?.value || 'user@example.com';
     const userName = nameInput?.value || 'Садовод';
     
-    const balance = 10000;
-    const cashback = 500;
-    const role = 'user';
+    const isAdmin = userEmail === 'admin@plantshop.ru';
+    const balance = isAdmin ? 0 : 10000;
+    const cashback = isAdmin ? 0 : 500;
+    const role = isAdmin ? 'admin' : 'user';
     
     setIsAuthenticated(true);
     setUserName(userName);

@@ -28,6 +28,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     db_url = os.environ.get('DATABASE_URL')
     conn = psycopg2.connect(db_url)
+    conn.autocommit = True
     
     try:
         if method == 'GET':
@@ -43,30 +44,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps(settings_dict),
                     'isBase64Encoded': False
                 }
-        
-        if method == 'POST':
-            body_data = json.loads(event.get('body', '{}'))
-            password = body_data.get('password')
-            
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT value FROM site_settings WHERE key = 'admin_password'")
-                result = cur.fetchone()
-                stored_password = result['value'] if result else 'admin123'
-                
-                if password == stored_password:
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'authenticated': True}),
-                        'isBase64Encoded': False
-                    }
-                else:
-                    return {
-                        'statusCode': 401,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'authenticated': False}),
-                        'isBase64Encoded': False
-                    }
         
         admin_password = event.get('headers', {}).get('X-Admin-Password') or event.get('headers', {}).get('x-admin-password')
         
@@ -97,7 +74,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                             ON CONFLICT (key) 
                             DO UPDATE SET value = '{escaped_value}', updated_at = CURRENT_TIMESTAMP
                         """)
-                conn.commit()
                 
                 return {
                     'statusCode': 200,
