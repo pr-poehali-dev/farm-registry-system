@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import CheckoutDialog from '@/components/CheckoutDialog';
+import MyOrdersDialog from '@/components/MyOrdersDialog';
 
 interface Plant {
   id: number;
@@ -37,6 +38,7 @@ interface PlantShopHeaderProps {
   siteName?: string;
   onOrderComplete: () => void;
   onToast: (toast: { title: string; description: string; variant?: 'default' | 'destructive' }) => void;
+  userEmail: string;
 }
 
 export default function PlantShopHeader({
@@ -54,9 +56,11 @@ export default function PlantShopHeader({
   calculateTotal,
   siteName = 'Зелёный Оазис',
   onOrderComplete,
-  onToast
+  onToast,
+  userEmail
 }: PlantShopHeaderProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   return (
     <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -198,7 +202,11 @@ export default function PlantShopHeader({
                       <p className="text-sm text-muted-foreground">садовод@email.com</p>
                     </div>
                     <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => setIsOrdersOpen(true)}
+                      >
                         <Icon name="Package" size={18} className="mr-2" />
                         Мои заказы
                       </Button>
@@ -285,6 +293,12 @@ export default function PlantShopHeader({
         calculateTotal={calculateTotal}
         onOrderComplete={onOrderComplete}
         onToast={onToast}
+      />
+
+      <MyOrdersDialog
+        isOpen={isOrdersOpen}
+        onClose={() => setIsOrdersOpen(false)}
+        userEmail={userEmail}
       />
     </>
   );

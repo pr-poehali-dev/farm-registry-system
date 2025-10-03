@@ -34,6 +34,7 @@ export default function Index() {
   const [cart, setCart] = useState<Plant[]>([]);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
     phone: '',
@@ -57,6 +58,7 @@ export default function Index() {
       if (now < expiryTime) {
         setIsAuthenticated(true);
         setUserName(authData.userName);
+        setUserEmail(authData.userEmail || '');
       } else {
         localStorage.removeItem('user_auth');
       }
@@ -96,12 +98,17 @@ export default function Index() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
+    const userEmail = emailInput?.value || 'user@example.com';
     const userName = 'Садовод';
+    
     setIsAuthenticated(true);
     setUserName(userName);
+    setUserEmail(userEmail);
     
     const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, expiry }));
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, expiry }));
     
     toast({
       title: 'Добро пожаловать!',
@@ -111,12 +118,17 @@ export default function Index() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
+    const userEmail = emailInput?.value || 'user@example.com';
     const userName = 'Садовод';
+    
     setIsAuthenticated(true);
     setUserName(userName);
+    setUserEmail(userEmail);
     
     const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, expiry }));
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, expiry }));
     
     toast({
       title: 'Регистрация успешна!',
@@ -183,6 +195,7 @@ export default function Index() {
         siteName={settings.site_name}
         onOrderComplete={handleOrderComplete}
         onToast={toast}
+        userEmail={userEmail}
       />
 
       <main className="container mx-auto px-4 py-8">
