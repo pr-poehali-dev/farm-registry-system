@@ -31,7 +31,7 @@ export default function PlantFormDialog({ open, onOpenChange, onSubmit, plant, m
               id={`${mode}-name`} 
               name="name" 
               defaultValue={plant?.name || ''} 
-              placeholder="Например: Монстера"
+              required 
             />
           </div>
           <div className="space-y-2">
@@ -41,14 +41,14 @@ export default function PlantFormDialog({ open, onOpenChange, onSubmit, plant, m
               name="price" 
               type="number" 
               defaultValue={plant?.price || ''} 
-              placeholder="1000"
+              required 
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${mode}-category`}>Категория</Label>
-            <Select name="category" defaultValue={plant?.category || 'decorative'}>
+            <Select name="category" defaultValue={plant?.category || 'decorative'} required>
               <SelectTrigger>
-                <SelectValue placeholder="Выберите категорию" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="decorative">Декоративное</SelectItem>
@@ -57,16 +57,13 @@ export default function PlantFormDialog({ open, onOpenChange, onSubmit, plant, m
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`${mode}-image`}>URL изображения (необязательно)</Label>
+            <Label htmlFor={`${mode}-image`}>URL изображения</Label>
             <Input 
               id={`${mode}-image`} 
               name="image" 
               defaultValue={plant?.image || ''} 
-              placeholder="Оставьте пустым для автопоиска"
+              required 
             />
-            <p className="text-xs text-muted-foreground">
-              💡 Если не указать - фото подберётся автоматически по названию
-            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor={`${mode}-description`}>Описание</Label>
@@ -74,8 +71,7 @@ export default function PlantFormDialog({ open, onOpenChange, onSubmit, plant, m
               id={`${mode}-description`} 
               name="description" 
               defaultValue={plant?.description || ''} 
-              placeholder="Краткое описание растения"
-              rows={3}
+              required 
             />
           </div>
           <DialogFooter>

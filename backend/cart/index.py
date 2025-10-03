@@ -21,8 +21,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token, X-User-Id',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': '',
-            'isBase64Encoded': False
+            'body': ''
         }
     
     user_id = event.get('headers', {}).get('X-User-Id')
@@ -31,8 +30,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 401,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'User not authenticated'}),
-            'isBase64Encoded': False
+            'body': json.dumps({'error': 'User not authenticated'})
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -56,8 +54,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'items': items, 'total': float(total)}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'items': items, 'total': float(total)})
                 }
             
             elif method == 'POST':
@@ -88,8 +85,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 201,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(result),
-                    'isBase64Encoded': False
+                    'body': json.dumps(result)
                 }
             
             elif method == 'PUT':
@@ -108,15 +104,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(dict(result)),
-                        'isBase64Encoded': False
+                        'body': json.dumps(dict(result))
                     }
                 
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Item not found'}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'error': 'Item not found'})
                 }
             
             elif method == 'DELETE':
@@ -131,8 +125,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'success': True})
                 }
     
     finally:
@@ -141,6 +134,5 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     return {
         'statusCode': 405,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Method not allowed'}),
-        'isBase64Encoded': False
+        'body': json.dumps({'error': 'Method not allowed'})
     }

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -42,7 +41,6 @@ interface PlantShopHeaderProps {
   userEmail: string;
   userBalance?: number;
   userCashback?: number;
-  userRole?: 'user' | 'admin';
 }
 
 export default function PlantShopHeader({
@@ -63,12 +61,10 @@ export default function PlantShopHeader({
   onToast,
   userEmail,
   userBalance = 0,
-  userCashback = 0,
-  userRole = 'user'
+  userCashback = 0
 }: PlantShopHeaderProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
-  const navigate = useNavigate();
   return (
     <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -227,16 +223,6 @@ export default function PlantShopHeader({
                       </div>
                     </div>
                     <div className="space-y-2">
-                      {userRole === 'admin' && (
-                        <Button 
-                          variant="default" 
-                          className="w-full justify-start"
-                          onClick={() => window.open('/admin', '_blank')}
-                        >
-                          <Icon name="Shield" size={18} className="mr-2" />
-                          Админ-панель
-                        </Button>
-                      )}
                       <Button 
                         variant="outline" 
                         className="w-full justify-start"
@@ -294,10 +280,7 @@ export default function PlantShopHeader({
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="password">Пароль</Label>
-                          <Input id="password" type="password" />
-                          <p className="text-xs text-muted-foreground">
-                            🔑 Для админа: admin@plantshop.ru (без пароля)
-                          </p>
+                          <Input id="password" type="password" required />
                         </div>
                         <Button type="submit" className="w-full">Войти</Button>
                       </form>

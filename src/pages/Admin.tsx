@@ -49,7 +49,7 @@ export default function Admin() {
       if (response.ok && data.authenticated) {
         setIsAuthenticated(true);
         setAdminPassword(password);
-        loadData();
+        loadData(password);
       } else {
         localStorage.removeItem('admin_password');
       }
@@ -74,7 +74,7 @@ export default function Admin() {
         localStorage.setItem('admin_password', password);
         setIsAuthenticated(true);
         setAdminPassword(password);
-        loadData();
+        loadData(password);
         toast({
           title: 'Вход выполнен',
           description: 'Добро пожаловать в админ-панель'
@@ -96,7 +96,7 @@ export default function Admin() {
     }
   };
 
-  const loadData = async () => {
+  const loadData = async (pwd: string) => {
     try {
       const [plantsRes, settingsRes] = await Promise.all([
         fetch(PLANTS_API),

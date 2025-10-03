@@ -21,8 +21,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-User-Id, X-Admin-Password',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': '',
-            'isBase64Encoded': False
+            'body': ''
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -67,8 +66,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(order),
-                        'isBase64Encoded': False
+                        'body': json.dumps(order)
                     }
                 
                 if admin_password:
@@ -93,8 +91,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(orders),
-                        'isBase64Encoded': False
+                        'body': json.dumps(orders)
                     }
                 
                 if user_id:
@@ -118,15 +115,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(orders),
-                        'isBase64Encoded': False
+                        'body': json.dumps(orders)
                     }
                 
                 return {
                     'statusCode': 400,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Missing required parameters'}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'error': 'Missing required parameters'})
                 }
             
             elif method == 'POST':
@@ -139,8 +134,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Missing user_id or items'}),
-                        'isBase64Encoded': False
+                        'body': json.dumps({'error': 'Missing user_id or items'})
                     }
                 
                 total_amount = sum(item['price'] * item['quantity'] for item in items)
@@ -162,8 +156,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 201,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'order_id': order_id, 'total_amount': float(total_amount)}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'order_id': order_id, 'total_amount': float(total_amount)})
                 }
             
             elif method == 'PUT':
@@ -173,8 +166,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Unauthorized'}),
-                        'isBase64Encoded': False
+                        'body': json.dumps({'error': 'Unauthorized'})
                     }
                 
                 body_data = json.loads(event.get('body', '{}'))
@@ -185,8 +177,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 400,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'Missing order_id or status'}),
-                        'isBase64Encoded': False
+                        'body': json.dumps({'error': 'Missing order_id or status'})
                     }
                 
                 cur.execute(
@@ -200,15 +191,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(dict(result)),
-                        'isBase64Encoded': False
+                        'body': json.dumps(dict(result))
                     }
                 
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Order not found'}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'error': 'Order not found'})
                 }
     
     finally:
@@ -217,6 +206,5 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     return {
         'statusCode': 405,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Method not allowed'}),
-        'isBase64Encoded': False
+        'body': json.dumps({'error': 'Method not allowed'})
     }

@@ -3,15 +3,13 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
-import urllib.request
-import urllib.parse
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
     Business: API для управления растениями - получение, создание, обновление, удаление
     Args: event - dict с httpMethod, body, queryStringParameters, pathParams
           context - объект с атрибутами request_id, function_name
-    Returns: HTTP response dict с CORS заголовками
+    Returns: HTTP response dict
     '''
     method: str = event.get('httpMethod', 'GET')
     
@@ -24,8 +22,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': '',
-            'isBase64Encoded': False
+            'body': ''
         }
     
     db_url = os.environ.get('DATABASE_URL')
@@ -42,8 +39,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(dict(plant) if plant else None, default=str),
-                        'isBase64Encoded': False
+                        'body': json.dumps(dict(plant) if plant else None, default=str)
                     }
                 else:
                     cur.execute('SELECT * FROM plants ORDER BY id')
@@ -51,8 +47,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps([dict(p) for p in plants], default=str),
-                        'isBase64Encoded': False
+                        'body': json.dumps([dict(p) for p in plants], default=str)
                     }
         
         admin_password = event.get('headers', {}).get('X-Admin-Password') or event.get('headers', {}).get('x-admin-password')
@@ -66,25 +61,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 401,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Unauthorized'}),
-                'isBase64Encoded': False
+                'body': json.dumps({'error': 'Unauthorized'})
             }
         
         if method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
-            name = body_data.get('name', 'Растение без названия')
-            price = body_data.get('price', 0)
-            category = body_data.get('category', 'decorative')
-            image = body_data.get('image', '')
-            description = body_data.get('description', '')
-            
-            if not image or image == '':
-                try:
-                    query = urllib.parse.quote(f'{name} растение')
-                    url = f'https://source.unsplash.com/800x800/?{query},plant'
-                    image = url
-                except:
-                    image = 'https://source.unsplash.com/800x800/?plant'
+            name = body_data.get('name')
+            price = body_data.get('price')
+            category = body_data.get('category')
+            image = body_data.get('image')
+            description = body_data.get('description')
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
@@ -97,68 +83,32 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 201,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(new_plant), default=str),
-                    'isBase64Encoded': False
+                    'body': json.dumps(dict(new_plant), default=str)
                 }
         
         if method == 'PUT':
             body_data = json.loads(event.get('body', '{}'))
             plant_id = body_data.get('id')
-            
-            if not plant_id:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'Plant ID is required'}),
-                    'isBase64Encoded': False
-                }
-            
-            update_fields = []
-            update_values = []
-            
-            if 'name' in body_data:
-                update_fields.append('name = %s')
-                update_values.append(body_data['name'])
-            
-            if 'price' in body_data:
-                update_fields.append('price = %s')
-                update_values.append(body_data['price'])
-            
-            if 'category' in body_data:
-                update_fields.append('category = %s')
-                update_values.append(body_data['category'])
-            
-            if 'image' in body_data:
-                update_fields.append('image = %s')
-                update_values.append(body_data['image'])
-            
-            if 'description' in body_data:
-                update_fields.append('description = %s')
-                update_values.append(body_data['description'])
-            
-            if not update_fields:
-                return {
-                    'statusCode': 400,
-                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'No fields to update'}),
-                    'isBase64Encoded': False
-                }
-            
-            update_fields.append('updated_at = CURRENT_TIMESTAMP')
-            update_values.append(plant_id)
-            
-            query = f"UPDATE plants SET {', '.join(update_fields)} WHERE id = %s RETURNING *"
+            name = body_data.get('name')
+            price = body_data.get('price')
+            category = body_data.get('category')
+            image = body_data.get('image')
+            description = body_data.get('description')
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(query, tuple(update_values))
+                cur.execute(
+                    '''UPDATE plants 
+                       SET name = %s, price = %s, category = %s, image = %s, description = %s, updated_at = CURRENT_TIMESTAMP 
+                       WHERE id = %s RETURNING *''',
+                    (name, price, category, image, description, plant_id)
+                )
                 updated_plant = cur.fetchone()
                 conn.commit()
                 
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(updated_plant) if updated_plant else None, default=str),
-                    'isBase64Encoded': False
+                    'body': json.dumps(dict(updated_plant) if updated_plant else None, default=str)
                 }
         
         if method == 'DELETE':
@@ -171,15 +121,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True}),
-                    'isBase64Encoded': False
+                    'body': json.dumps({'success': True})
                 }
         
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'}),
-            'isBase64Encoded': False
+            'body': json.dumps({'error': 'Method not allowed'})
         }
     
     finally:
