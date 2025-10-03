@@ -37,7 +37,7 @@ export default function Admin() {
 
       const data = await response.json();
 
-      if (data.authenticated) {
+      if (response.ok && data.authenticated) {
         setIsAuthenticated(true);
         setAdminPassword(password);
         loadData(password);
@@ -53,6 +53,7 @@ export default function Admin() {
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: 'Ошибка',
         description: 'Не удалось войти в систему',
