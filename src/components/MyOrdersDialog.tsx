@@ -30,6 +30,7 @@ interface MyOrdersDialogProps {
   isOpen: boolean;
   onClose: () => void;
   userEmail: string;
+  onGoToCatalog: () => void;
 }
 
 const ORDERS_API = 'https://functions.poehali.dev/07df05e5-996a-477f-b3a3-9ace5cab65ce';
@@ -50,7 +51,7 @@ const statusColors: Record<Order['status'], string> = {
   cancelled: 'bg-red-100 text-red-800'
 };
 
-export default function MyOrdersDialog({ isOpen, onClose, userEmail }: MyOrdersDialogProps) {
+export default function MyOrdersDialog({ isOpen, onClose, userEmail, onGoToCatalog }: MyOrdersDialogProps) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -186,11 +187,18 @@ export default function MyOrdersDialog({ isOpen, onClose, userEmail }: MyOrdersD
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-12">
-              <Icon name="Package" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">У вас пока нет заказов</h3>
-              <p className="text-muted-foreground">
+              <Icon name="ShoppingBag" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">У вас нет заказов</h3>
+              <p className="text-muted-foreground mb-6">
                 Оформите первый заказ и он появится здесь
               </p>
+              <Button onClick={() => {
+                onClose();
+                onGoToCatalog();
+              }}>
+                <Icon name="ShoppingCart" size={18} className="mr-2" />
+                Перейти в каталог
+              </Button>
             </div>
           ) : (
             filteredOrders.map(order => (

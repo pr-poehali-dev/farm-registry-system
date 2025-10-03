@@ -39,6 +39,8 @@ interface PlantShopHeaderProps {
   onOrderComplete: () => void;
   onToast: (toast: { title: string; description: string; variant?: 'default' | 'destructive' }) => void;
   userEmail: string;
+  userBalance?: number;
+  userCashback?: number;
 }
 
 export default function PlantShopHeader({
@@ -57,7 +59,9 @@ export default function PlantShopHeader({
   siteName = 'Зелёный Оазис',
   onOrderComplete,
   onToast,
-  userEmail
+  userEmail,
+  userBalance = 0,
+  userCashback = 0
 }: PlantShopHeaderProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
@@ -199,7 +203,24 @@ export default function PlantShopHeader({
                         </AvatarFallback>
                       </Avatar>
                       <h3 className="font-semibold text-lg">{userName}</h3>
-                      <p className="text-sm text-muted-foreground">садовод@email.com</p>
+                      <p className="text-sm text-muted-foreground">{userEmail}</p>
+                      
+                      <div className="mt-4 space-y-2">
+                        <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Wallet" size={18} className="text-primary" />
+                            <span className="text-sm font-medium">Баланс</span>
+                          </div>
+                          <span className="font-bold text-primary">{userBalance} ₽</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Gift" size={18} className="text-primary" />
+                            <span className="text-sm font-medium">Кэшбек</span>
+                          </div>
+                          <span className="font-bold text-primary">{userCashback} ₽</span>
+                        </div>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Button 
@@ -299,6 +320,7 @@ export default function PlantShopHeader({
         isOpen={isOrdersOpen}
         onClose={() => setIsOrdersOpen(false)}
         userEmail={userEmail}
+        onGoToCatalog={() => setActiveTab('catalog')}
       />
     </>
   );

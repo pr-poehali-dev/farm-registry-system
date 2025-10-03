@@ -35,6 +35,8 @@ export default function Index() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userBalance, setUserBalance] = useState(0);
+  const [userCashback, setUserCashback] = useState(0);
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
     phone: '',
@@ -59,6 +61,8 @@ export default function Index() {
         setIsAuthenticated(true);
         setUserName(authData.userName);
         setUserEmail(authData.userEmail || '');
+        setUserBalance(authData.balance || 0);
+        setUserCashback(authData.cashback || 0);
       } else {
         localStorage.removeItem('user_auth');
       }
@@ -102,13 +106,17 @@ export default function Index() {
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
     const userEmail = emailInput?.value || 'user@example.com';
     const userName = 'Садовод';
+    const balance = 1000;
+    const cashback = 50;
     
     setIsAuthenticated(true);
     setUserName(userName);
     setUserEmail(userEmail);
+    setUserBalance(balance);
+    setUserCashback(cashback);
     
     const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, expiry }));
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, expiry }));
     
     toast({
       title: 'Добро пожаловать!',
@@ -122,13 +130,17 @@ export default function Index() {
     const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement;
     const userEmail = emailInput?.value || 'user@example.com';
     const userName = 'Садовод';
+    const balance = 500;
+    const cashback = 0;
     
     setIsAuthenticated(true);
     setUserName(userName);
     setUserEmail(userEmail);
+    setUserBalance(balance);
+    setUserCashback(cashback);
     
     const expiry = Date.now() + 15 * 60 * 1000;
-    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, expiry }));
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, expiry }));
     
     toast({
       title: 'Регистрация успешна!',
@@ -196,6 +208,8 @@ export default function Index() {
         onOrderComplete={handleOrderComplete}
         onToast={toast}
         userEmail={userEmail}
+        userBalance={userBalance}
+        userCashback={userCashback}
       />
 
       <main className="container mx-auto px-4 py-8">
