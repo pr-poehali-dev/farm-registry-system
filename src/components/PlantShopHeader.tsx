@@ -32,6 +32,7 @@ interface PlantShopHeaderProps {
   handleRegister: (e: React.FormEvent) => void;
   removeFromCart: (index: number) => void;
   calculateTotal: () => number;
+  siteName?: string;
 }
 
 export default function PlantShopHeader({
@@ -46,7 +47,8 @@ export default function PlantShopHeader({
   handleLogin,
   handleRegister,
   removeFromCart,
-  calculateTotal
+  calculateTotal,
+  siteName = 'Зелёный Оазис'
 }: PlantShopHeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -54,7 +56,7 @@ export default function PlantShopHeader({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Icon name="Sprout" size={32} className="text-primary" />
-            <h1 className="text-2xl font-bold text-primary">Plant Shop</h1>
+            <h1 className="text-2xl font-bold text-primary">{siteName}</h1>
           </div>
           
           <nav className="hidden md:flex items-center gap-6">

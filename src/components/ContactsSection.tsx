@@ -4,7 +4,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
-export default function ContactsSection() {
+interface Settings {
+  phone: string;
+  email: string;
+  address: string;
+  working_hours: string;
+  site_name?: string;
+}
+
+interface ContactsSectionProps {
+  settings: Settings;
+}
+
+export default function ContactsSection({ settings }: ContactsSectionProps) {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <h2 className="text-3xl font-bold">Контакты</h2>
@@ -14,22 +26,30 @@ export default function ContactsSection() {
             <CardTitle>Свяжитесь с нами</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Icon name="Phone" size={20} className="text-primary" />
-              <span>+7 (900) 123-45-67</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Icon name="Mail" size={20} className="text-primary" />
-              <span>info@plantshop.ru</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Icon name="MapPin" size={20} className="text-primary" />
-              <span>г. Москва, ул. Садовая, д. 15</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Icon name="Clock" size={20} className="text-primary" />
-              <span>Пн-Вс: 9:00 - 21:00</span>
-            </div>
+            {settings.phone && (
+              <div className="flex items-center gap-3">
+                <Icon name="Phone" size={20} className="text-primary" />
+                <span>{settings.phone}</span>
+              </div>
+            )}
+            {settings.email && (
+              <div className="flex items-center gap-3">
+                <Icon name="Mail" size={20} className="text-primary" />
+                <span>{settings.email}</span>
+              </div>
+            )}
+            {settings.address && (
+              <div className="flex items-center gap-3">
+                <Icon name="MapPin" size={20} className="text-primary" />
+                <span>{settings.address}</span>
+              </div>
+            )}
+            {settings.working_hours && (
+              <div className="flex items-center gap-3">
+                <Icon name="Clock" size={20} className="text-primary" />
+                <span>{settings.working_hours}</span>
+              </div>
+            )}
           </CardContent>
         </Card>
         <Card>
