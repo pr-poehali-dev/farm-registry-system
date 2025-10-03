@@ -3,19 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-
-interface Settings {
-  phone: string;
-  email: string;
-  address: string;
-  working_hours: string;
-}
+import type { Settings, ToastConfig } from '@/types/admin';
 
 interface SettingsManagementProps {
   settings: Settings;
   adminPassword: string;
   onSettingsUpdate: (settings: Settings) => void;
-  onToast: (toast: { title: string; description: string; variant?: 'destructive' }) => void;
+  onToast: (toast: ToastConfig) => void;
 }
 
 const SETTINGS_API = 'https://functions.poehali.dev/2cc392a6-5375-4f6d-aead-d8a3ac112c4c';

@@ -7,25 +7,10 @@ import { useToast } from '@/hooks/use-toast';
 import LoginForm from '@/components/admin/LoginForm';
 import PlantsManagement from '@/components/admin/PlantsManagement';
 import SettingsManagement from '@/components/admin/SettingsManagement';
+import type { Plant, Settings } from '@/types/admin';
 
 const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e62528d35d5';
 const SETTINGS_API = 'https://functions.poehali.dev/2cc392a6-5375-4f6d-aead-d8a3ac112c4c';
-
-interface Plant {
-  id: number;
-  name: string;
-  price: number;
-  category: 'decorative' | 'fruit';
-  image: string;
-  description: string;
-}
-
-interface Settings {
-  phone: string;
-  email: string;
-  address: string;
-  working_hours: string;
-}
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

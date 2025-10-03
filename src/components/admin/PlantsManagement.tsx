@@ -4,21 +4,13 @@ import { DialogTrigger } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import PlantCard from './PlantCard';
 import PlantFormDialog from './PlantFormDialog';
-
-interface Plant {
-  id: number;
-  name: string;
-  price: number;
-  category: 'decorative' | 'fruit';
-  image: string;
-  description: string;
-}
+import type { Plant, ToastConfig } from '@/types/admin';
 
 interface PlantsManagementProps {
   plants: Plant[];
   adminPassword: string;
   onPlantsUpdate: (plants: Plant[]) => void;
-  onToast: (toast: { title: string; description: string; variant?: 'destructive' }) => void;
+  onToast: (toast: ToastConfig) => void;
 }
 
 const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e62528d35d5';

@@ -1,15 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
-
-interface Plant {
-  id: number;
-  name: string;
-  price: number;
-  category: 'decorative' | 'fruit';
-  image: string;
-  description: string;
-}
+import type { Plant } from '@/types/admin';
 
 interface PlantCardProps {
   plant: Plant;
