@@ -121,6 +121,10 @@ export default function Index() {
     setCart(newCart);
   };
 
+  const handleOrderComplete = () => {
+    setCart([]);
+  };
+
   const calculateTotal = () => {
     return cart.reduce((sum, plant) => sum + plant.price, 0);
   };
@@ -153,6 +157,8 @@ export default function Index() {
         removeFromCart={removeFromCart}
         calculateTotal={calculateTotal}
         siteName={settings.site_name}
+        onOrderComplete={handleOrderComplete}
+        onToast={toast}
       />
 
       <main className="container mx-auto px-4 py-8">

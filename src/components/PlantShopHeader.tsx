@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import CheckoutDialog from '@/components/CheckoutDialog';
 
 interface Plant {
   id: number;
@@ -33,6 +35,8 @@ interface PlantShopHeaderProps {
   removeFromCart: (index: number) => void;
   calculateTotal: () => number;
   siteName?: string;
+  onOrderComplete: () => void;
+  onToast: (toast: { title: string; description: string; variant?: 'default' | 'destructive' }) => void;
 }
 
 export default function PlantShopHeader({
@@ -48,9 +52,13 @@ export default function PlantShopHeader({
   handleRegister,
   removeFromCart,
   calculateTotal,
-  siteName = 'Зелёный Оазис'
+  siteName = 'Зелёный Оазис',
+  onOrderComplete,
+  onToast
 }: PlantShopHeaderProps) {
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   return (
+    <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
@@ -150,7 +158,8 @@ export default function PlantShopHeader({
                         <span className="font-semibold">Итого:</span>
                         <span className="text-xl font-bold text-primary">{calculateTotal()} ₽</span>
                       </div>
-                      <Button className="w-full" size="lg">
+                      <Button className="w-full" size="lg" onClick={() => setIsCheckoutOpen(true)}>
+                        <Icon name="ShoppingBag" size={18} className="mr-2" />
                         Оформить заказ
                       </Button>
                     </div>
@@ -265,5 +274,15 @@ export default function PlantShopHeader({
         </div>
       </div>
     </header>
+
+      <CheckoutDialog
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cart={cart}
+        calculateTotal={calculateTotal}
+        onOrderComplete={onOrderComplete}
+        onToast={onToast}
+      />
+    </>
   );
 }
