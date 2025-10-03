@@ -29,7 +29,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Auth-Token',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     dsn = os.environ.get('DATABASE_URL')
@@ -53,7 +54,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         return {
                             'statusCode': 400,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Email already registered'})
+                            'body': json.dumps({'error': 'Email already registered'}),
+                            'isBase64Encoded': False
                         }
                     
                     password_hash = hash_password(password)
@@ -67,7 +69,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 201,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'user': user, 'token': token})
+                        'body': json.dumps({'user': user, 'token': token}),
+                        'isBase64Encoded': False
                     }
                 
                 elif action == 'login':
@@ -85,7 +88,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         return {
                             'statusCode': 401,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'error': 'Invalid credentials'})
+                            'body': json.dumps({'error': 'Invalid credentials'}),
+                            'isBase64Encoded': False
                         }
                     
                     user = dict(user)
@@ -94,7 +98,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'user': user, 'token': token})
+                        'body': json.dumps({'user': user, 'token': token}),
+                        'isBase64Encoded': False
                     }
             
             elif method == 'GET':
@@ -104,7 +109,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 401,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'error': 'No token provided'})
+                        'body': json.dumps({'error': 'No token provided'}),
+                        'isBase64Encoded': False
                     }
                 
                 user_id = event.get('queryStringParameters', {}).get('user_id')
@@ -120,13 +126,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                         return {
                             'statusCode': 200,
                             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                            'body': json.dumps({'user': dict(user)})
+                            'body': json.dumps({'user': dict(user)}),
+                            'isBase64Encoded': False
                         }
                 
                 return {
                     'statusCode': 404,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'error': 'User not found'})
+                    'body': json.dumps({'error': 'User not found'}),
+                    'isBase64Encoded': False
                 }
     
     finally:
@@ -135,5 +143,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     return {
         'statusCode': 405,
         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-        'body': json.dumps({'error': 'Method not allowed'})
+        'body': json.dumps({'error': 'Method not allowed'}),
+        'isBase64Encoded': False
     }
