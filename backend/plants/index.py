@@ -72,11 +72,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         if method == 'POST':
             body_data = json.loads(event.get('body', '{}'))
-            name = body_data.get('name')
-            price = body_data.get('price')
-            category = body_data.get('category')
-            image = body_data.get('image')
-            description = body_data.get('description')
+            name = body_data.get('name', 'Растение без названия')
+            price = body_data.get('price', 0)
+            category = body_data.get('category', 'decorative')
+            image = body_data.get('image', '')
+            description = body_data.get('description', '')
             
             if not image or image == '':
                 try:
@@ -104,19 +104,53 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if method == 'PUT':
             body_data = json.loads(event.get('body', '{}'))
             plant_id = body_data.get('id')
-            name = body_data.get('name')
-            price = body_data.get('price')
-            category = body_data.get('category')
-            image = body_data.get('image')
-            description = body_data.get('description')
+            
+            if not plant_id:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'Plant ID is required'}),
+                    'isBase64Encoded': False
+                }
+            
+            update_fields = []
+            update_values = []
+            
+            if 'name' in body_data:
+                update_fields.append('name = %s')
+                update_values.append(body_data['name'])
+            
+            if 'price' in body_data:
+                update_fields.append('price = %s')
+                update_values.append(body_data['price'])
+            
+            if 'category' in body_data:
+                update_fields.append('category = %s')
+                update_values.append(body_data['category'])
+            
+            if 'image' in body_data:
+                update_fields.append('image = %s')
+                update_values.append(body_data['image'])
+            
+            if 'description' in body_data:
+                update_fields.append('description = %s')
+                update_values.append(body_data['description'])
+            
+            if not update_fields:
+                return {
+                    'statusCode': 400,
+                    'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                    'body': json.dumps({'error': 'No fields to update'}),
+                    'isBase64Encoded': False
+                }
+            
+            update_fields.append('updated_at = CURRENT_TIMESTAMP')
+            update_values.append(plant_id)
+            
+            query = f"UPDATE plants SET {', '.join(update_fields)} WHERE id = %s RETURNING *"
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute(
-                    '''UPDATE plants 
-                       SET name = %s, price = %s, category = %s, image = %s, description = %s, updated_at = CURRENT_TIMESTAMP 
-                       WHERE id = %s RETURNING *''',
-                    (name, price, category, image, description, plant_id)
-                )
+                cur.execute(query, tuple(update_values))
                 updated_plant = cur.fetchone()
                 conn.commit()
                 

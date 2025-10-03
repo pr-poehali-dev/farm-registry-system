@@ -23,13 +23,19 @@ export default function PlantsManagement({ plants, adminPassword, onPlantsUpdate
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     
-    const newPlant = {
-      name: formData.get('name') as string,
-      price: parseInt(formData.get('price') as string),
-      category: formData.get('category') as 'decorative' | 'fruit',
-      image: formData.get('image') as string,
-      description: formData.get('description') as string
-    };
+    const name = formData.get('name') as string;
+    const priceStr = formData.get('price') as string;
+    const category = formData.get('category') as 'decorative' | 'fruit';
+    const image = formData.get('image') as string;
+    const description = formData.get('description') as string;
+    
+    const newPlant: any = {};
+    
+    if (name && name.trim()) newPlant.name = name;
+    if (priceStr && !isNaN(parseInt(priceStr))) newPlant.price = parseInt(priceStr);
+    if (category) newPlant.category = category;
+    if (image && image.trim()) newPlant.image = image;
+    if (description && description.trim()) newPlant.description = description;
 
     try {
       const response = await fetch(PLANTS_API, {
@@ -65,14 +71,21 @@ export default function PlantsManagement({ plants, adminPassword, onPlantsUpdate
 
     const formData = new FormData(e.target as HTMLFormElement);
     
-    const updatedPlant = {
-      id: editingPlant.id,
-      name: formData.get('name') as string,
-      price: parseInt(formData.get('price') as string),
-      category: formData.get('category') as 'decorative' | 'fruit',
-      image: formData.get('image') as string,
-      description: formData.get('description') as string
+    const name = formData.get('name') as string;
+    const priceStr = formData.get('price') as string;
+    const category = formData.get('category') as 'decorative' | 'fruit';
+    const image = formData.get('image') as string;
+    const description = formData.get('description') as string;
+    
+    const updatedPlant: any = {
+      id: editingPlant.id
     };
+    
+    if (name && name.trim()) updatedPlant.name = name;
+    if (priceStr && !isNaN(parseInt(priceStr))) updatedPlant.price = parseInt(priceStr);
+    if (category) updatedPlant.category = category;
+    if (image && image.trim()) updatedPlant.image = image;
+    if (description && description.trim()) updatedPlant.description = description;
 
     try {
       const response = await fetch(PLANTS_API, {
