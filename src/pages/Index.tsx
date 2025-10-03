@@ -130,45 +130,24 @@ export default function Index() {
     const userEmail = emailInput?.value || 'user@example.com';
     const userName = nameInput?.value || 'Садовод';
     
-    if (userEmail === 'admin@plantshop.ru') {
-      const role = 'admin';
-      const balance = 999999;
-      const cashback = 0;
-      
-      setIsAuthenticated(true);
-      setUserName('Администратор');
-      setUserEmail(userEmail);
-      setUserBalance(balance);
-      setUserCashback(cashback);
-      setUserRole(role);
-      
-      const expiry = Date.now() + 24 * 60 * 60 * 1000;
-      localStorage.setItem('user_auth', JSON.stringify({ userName: 'Администратор', userEmail, balance, cashback, role, expiry }));
-      
-      toast({
-        title: 'Добро пожаловать, Администратор!',
-        description: 'Вы вошли с правами администратора'
-      });
-    } else {
-      const balance = 1000;
-      const cashback = 50;
-      const role = 'user';
-      
-      setIsAuthenticated(true);
-      setUserName(userName);
-      setUserEmail(userEmail);
-      setUserBalance(balance);
-      setUserCashback(cashback);
-      setUserRole(role);
-      
-      const expiry = Date.now() + 15 * 60 * 1000;
-      localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, role, expiry }));
-      
-      toast({
-        title: 'Добро пожаловать!',
-        description: 'Вы успешно вошли в систему'
-      });
-    }
+    const balance = 10000;
+    const cashback = 500;
+    const role = 'user';
+    
+    setIsAuthenticated(true);
+    setUserName(userName);
+    setUserEmail(userEmail);
+    setUserBalance(balance);
+    setUserCashback(cashback);
+    setUserRole(role);
+    
+    const expiry = Date.now() + 24 * 60 * 60 * 1000;
+    localStorage.setItem('user_auth', JSON.stringify({ userName, userEmail, balance, cashback, role, expiry }));
+    
+    toast({
+      title: 'Добро пожаловать!',
+      description: 'Вы успешно вошли в систему'
+    });
   };
 
   const handleRegister = (e: React.FormEvent) => {
