@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get cart items",
+      "method": "GET",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "expectedStatus": 200
+    },
+    {
+      "name": "Add item to cart",
+      "method": "POST",
+      "headers": {
+        "X-User-Id": "1"
+      },
+      "body": {
+        "plant_id": 1,
+        "quantity": 2
+      },
+      "expectedStatus": 201
+    }
+  ]
+}
