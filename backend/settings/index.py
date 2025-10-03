@@ -9,7 +9,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Business: API для управления настройками сайта - получение и обновление
     Args: event - dict с httpMethod, body, headers
           context - объект с атрибутами request_id, function_name
-    Returns: HTTP response dict
+    Returns: HTTP response dict с CORS заголовками
     '''
     method: str = event.get('httpMethod', 'GET')
     

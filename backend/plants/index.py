@@ -11,7 +11,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Business: API для управления растениями - получение, создание, обновление, удаление
     Args: event - dict с httpMethod, body, queryStringParameters, pathParams
           context - объект с атрибутами request_id, function_name
-    Returns: HTTP response dict
+    Returns: HTTP response dict с CORS заголовками
     '''
     method: str = event.get('httpMethod', 'GET')
     
