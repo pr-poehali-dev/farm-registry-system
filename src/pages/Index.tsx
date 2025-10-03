@@ -229,6 +229,7 @@ export default function Index() {
             favorites={favorites}
             toggleFavorite={toggleFavorite}
             addToCart={addToCart}
+            setActiveTab={setActiveTab}
           />
         )}
 

@@ -37,8 +37,9 @@ export default function HomeSection({ plants, favorites, toggleFavorite, addToCa
               <Icon name="Leaf" size={20} className="mr-2" />
               Смотреть каталог
             </Button>
-            <Button size="lg" variant="outline">
-              Узнать больше
+            <Button size="lg" variant="outline" onClick={() => setActiveTab('contacts')}>
+              <Icon name="Phone" size={20} className="mr-2" />
+              Связаться с нами
             </Button>
           </div>
         </div>

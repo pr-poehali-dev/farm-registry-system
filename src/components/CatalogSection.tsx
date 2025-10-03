@@ -1,4 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import Icon from '@/components/ui/icon';
 import PlantCard from './PlantCard';
 
 interface Plant {
@@ -15,12 +17,19 @@ interface CatalogSectionProps {
   favorites: number[];
   toggleFavorite: (plantId: number) => void;
   addToCart: (plant: Plant) => void;
+  setActiveTab: (tab: string) => void;
 }
 
-export default function CatalogSection({ plants, favorites, toggleFavorite, addToCart }: CatalogSectionProps) {
+export default function CatalogSection({ plants, favorites, toggleFavorite, addToCart, setActiveTab }: CatalogSectionProps) {
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold">Каталог растений</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold">Каталог растений</h2>
+        <Button variant="outline" onClick={() => setActiveTab('home')}>
+          <Icon name="ArrowLeft" size={18} className="mr-2" />
+          Назад
+        </Button>
+      </div>
       <Tabs defaultValue="all">
         <TabsList>
           <TabsTrigger value="all">Все</TabsTrigger>
