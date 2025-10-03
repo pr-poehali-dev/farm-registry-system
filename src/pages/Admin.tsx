@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import LoginForm from '@/components/admin/LoginForm';
 import PlantsManagement from '@/components/admin/PlantsManagement';
 import SettingsManagement from '@/components/admin/SettingsManagement';
 import OrdersManagement from '@/components/admin/OrdersManagement';
@@ -14,7 +15,8 @@ const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e6252
 const SETTINGS_API = 'https://functions.poehali.dev/2cc392a6-5375-4f6d-aead-d8a3ac112c4c';
 
 export default function Admin() {
-  const [adminPassword] = useState('admin123');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   const [plants, setPlants] = useState<Plant[]>([]);
   const [settings, setSettings] = useState<Settings>({
     phone: '',
@@ -26,28 +28,65 @@ export default function Admin() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [plantsRes, settingsRes] = await Promise.all([
-          fetch(PLANTS_API),
-          fetch(SETTINGS_API)
-        ]);
+    const savedPassword = localStorage.getItem('admin_password');
+    if (savedPassword) {
+      validateAndLogin(savedPassword);
+    }
+  }, []);
 
-        const plantsData = await plantsRes.json();
-        const settingsData = await settingsRes.json();
+  const validateAndLogin = async (password: string) => {
+    if (password === '123') {
+      setIsAuthenticated(true);
+      setAdminPassword(password);
+      loadData();
+    } else {
+      localStorage.removeItem('admin_password');
+    }
+  };
 
-        setPlants(plantsData);
-        setSettings(settingsData);
-      } catch (error) {
-        toast({
-          title: 'Ошибка',
-          description: 'Не удалось загрузить данные',
-          variant: 'destructive'
-        });
-      }
-    };
-    loadData();
-  }, [toast]);
+  const handleLogin = async (password: string) => {
+    if (password === '123') {
+      localStorage.setItem('admin_password', password);
+      setIsAuthenticated(true);
+      setAdminPassword(password);
+      loadData();
+      toast({
+        title: 'Вход выполнен',
+        description: 'Добро пожаловать в админ-панель'
+      });
+    } else {
+      toast({
+        title: 'Ошибка',
+        description: 'Неверный пароль',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const loadData = async () => {
+    try {
+      const [plantsRes, settingsRes] = await Promise.all([
+        fetch(PLANTS_API),
+        fetch(SETTINGS_API)
+      ]);
+
+      const plantsData = await plantsRes.json();
+      const settingsData = await settingsRes.json();
+
+      setPlants(plantsData);
+      setSettings(settingsData);
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось загрузить данные',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  if (!isAuthenticated) {
+    return <LoginForm onLogin={handleLogin} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-accent/20">
