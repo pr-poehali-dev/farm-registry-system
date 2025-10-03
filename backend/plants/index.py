@@ -3,6 +3,8 @@ import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Dict, Any
+import urllib.request
+import urllib.parse
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
@@ -22,7 +24,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Password',
                 'Access-Control-Max-Age': '86400'
             },
-            'body': ''
+            'body': '',
+            'isBase64Encoded': False
         }
     
     db_url = os.environ.get('DATABASE_URL')
@@ -39,7 +42,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps(dict(plant) if plant else None, default=str)
+                        'body': json.dumps(dict(plant) if plant else None, default=str),
+                        'isBase64Encoded': False
                     }
                 else:
                     cur.execute('SELECT * FROM plants ORDER BY id')
@@ -47,7 +51,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     return {
                         'statusCode': 200,
                         'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps([dict(p) for p in plants], default=str)
+                        'body': json.dumps([dict(p) for p in plants], default=str),
+                        'isBase64Encoded': False
                     }
         
         admin_password = event.get('headers', {}).get('X-Admin-Password') or event.get('headers', {}).get('x-admin-password')
@@ -61,7 +66,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return {
                 'statusCode': 401,
                 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Unauthorized'})
+                'body': json.dumps({'error': 'Unauthorized'}),
+                'isBase64Encoded': False
             }
         
         if method == 'POST':
@@ -71,6 +77,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             category = body_data.get('category')
             image = body_data.get('image')
             description = body_data.get('description')
+            
+            if not image or image == '':
+                try:
+                    query = urllib.parse.quote(f'{name} растение')
+                    url = f'https://source.unsplash.com/800x800/?{query},plant'
+                    image = url
+                except:
+                    image = 'https://source.unsplash.com/800x800/?plant'
             
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
@@ -83,7 +97,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 201,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(new_plant), default=str)
+                    'body': json.dumps(dict(new_plant), default=str),
+                    'isBase64Encoded': False
                 }
         
         if method == 'PUT':
@@ -108,7 +123,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps(dict(updated_plant) if updated_plant else None, default=str)
+                    'body': json.dumps(dict(updated_plant) if updated_plant else None, default=str),
+                    'isBase64Encoded': False
                 }
         
         if method == 'DELETE':
@@ -121,13 +137,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 200,
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                    'body': json.dumps({'success': True})
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
                 }
         
         return {
             'statusCode': 405,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'Method not allowed'})
+            'body': json.dumps({'error': 'Method not allowed'}),
+            'isBase64Encoded': False
         }
     
     finally:
