@@ -42,6 +42,28 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps(settings_dict)
                 }
         
+        if method == 'POST':
+            body_data = json.loads(event.get('body', '{}'))
+            password = body_data.get('password')
+            
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT value FROM site_settings WHERE key = 'admin_password'")
+                result = cur.fetchone()
+                stored_password = result['value'] if result else 'admin123'
+                
+                if password == stored_password:
+                    return {
+                        'statusCode': 200,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'authenticated': True})
+                    }
+                else:
+                    return {
+                        'statusCode': 401,
+                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+                        'body': json.dumps({'authenticated': False})
+                    }
+        
         admin_password = event.get('headers', {}).get('X-Admin-Password') or event.get('headers', {}).get('x-admin-password')
         
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -76,28 +98,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
                     'body': json.dumps({'success': True})
                 }
-        
-        if method == 'POST':
-            body_data = json.loads(event.get('body', '{}'))
-            password = body_data.get('password')
-            
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT value FROM site_settings WHERE key = 'admin_password'")
-                result = cur.fetchone()
-                stored_password = result['value'] if result else 'admin123'
-                
-                if password == stored_password:
-                    return {
-                        'statusCode': 200,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'authenticated': True})
-                    }
-                else:
-                    return {
-                        'statusCode': 401,
-                        'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                        'body': json.dumps({'authenticated': False})
-                    }
         
         return {
             'statusCode': 405,
