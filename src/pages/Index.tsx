@@ -267,7 +267,7 @@ export default function Index() {
         {activeTab === 'contacts' && <ContactsSection settings={settings} />}
       </main>
 
-      <PlantShopFooter />
+      <PlantShopFooter settings={settings} setActiveTab={setActiveTab} />
     </div>
   );
 }
