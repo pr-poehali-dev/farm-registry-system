@@ -68,6 +68,26 @@ export default function Index() {
       }
     }
     
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      try {
+        const cartData = JSON.parse(savedCart);
+        setCart(cartData);
+      } catch (error) {
+        console.error('Ошибка загрузки корзины:', error);
+      }
+    }
+    
+    const savedFavorites = localStorage.getItem('favorites');
+    if (savedFavorites) {
+      try {
+        const favoritesData = JSON.parse(savedFavorites);
+        setFavorites(favoritesData);
+      } catch (error) {
+        console.error('Ошибка загрузки избранного:', error);
+      }
+    }
+    
     const interval = setInterval(() => {
       loadData();
     }, 5000);
@@ -149,7 +169,9 @@ export default function Index() {
   };
 
   const addToCart = (plant: Plant) => {
-    setCart([...cart, plant]);
+    const newCart = [...cart, plant];
+    setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
     toast({
       title: 'Добавлено в корзину',
       description: plant.name
@@ -157,20 +179,25 @@ export default function Index() {
   };
 
   const toggleFavorite = (plantId: number) => {
+    let newFavorites;
     if (favorites.includes(plantId)) {
-      setFavorites(favorites.filter(id => id !== plantId));
+      newFavorites = favorites.filter(id => id !== plantId);
     } else {
-      setFavorites([...favorites, plantId]);
+      newFavorites = [...favorites, plantId];
     }
+    setFavorites(newFavorites);
+    localStorage.setItem('favorites', JSON.stringify(newFavorites));
   };
 
   const removeFromCart = (index: number) => {
     const newCart = cart.filter((_, i) => i !== index);
     setCart(newCart);
+    localStorage.setItem('cart', JSON.stringify(newCart));
   };
 
   const handleOrderComplete = () => {
     setCart([]);
+    localStorage.removeItem('cart');
   };
 
   const calculateTotal = () => {
