@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 
 interface OrderItem {
@@ -50,13 +52,41 @@ const statusColors: Record<Order['status'], string> = {
 
 export default function MyOrdersDialog({ isOpen, onClose, userEmail }: MyOrdersDialogProps) {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
   useEffect(() => {
     if (isOpen && userEmail) {
       loadOrders();
     }
   }, [isOpen, userEmail]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [orders, statusFilter, sortOrder]);
+
+  const applyFilters = () => {
+    let result = [...orders];
+
+    if (statusFilter !== 'all') {
+      result = result.filter(order => order.status === statusFilter);
+    }
+
+    result.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+
+    setFilteredOrders(result);
+  };
+
+  const resetFilters = () => {
+    setStatusFilter('all');
+    setSortOrder('newest');
+  };
 
   const loadOrders = async () => {
     setLoading(true);
@@ -84,11 +114,75 @@ export default function MyOrdersDialog({ isOpen, onClose, userEmail }: MyOrdersD
           </DialogDescription>
         </DialogHeader>
 
+        {!loading && orders.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-3 pt-4 border-b pb-4">
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-2 block">Статус заказа</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Все статусы" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Все статусы</SelectItem>
+                  <SelectItem value="pending">Ожидает обработки</SelectItem>
+                  <SelectItem value="processing">В обработке</SelectItem>
+                  <SelectItem value="shipped">Отправлен</SelectItem>
+                  <SelectItem value="delivered">Доставлен</SelectItem>
+                  <SelectItem value="cancelled">Отменен</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex-1">
+              <label className="text-sm font-medium mb-2 block">Сортировка по дате</label>
+              <Select value={sortOrder} onValueChange={(value: 'newest' | 'oldest') => setSortOrder(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">
+                    <div className="flex items-center gap-2">
+                      <Icon name="ArrowDown" size={16} />
+                      Сначала новые
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="oldest">
+                    <div className="flex items-center gap-2">
+                      <Icon name="ArrowUp" size={16} />
+                      Сначала старые
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {(statusFilter !== 'all' || sortOrder !== 'newest') && (
+              <div className="flex items-end">
+                <Button variant="outline" onClick={resetFilters} className="w-full sm:w-auto">
+                  <Icon name="X" size={16} className="mr-2" />
+                  Сбросить
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="space-y-4 mt-4">
           {loading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
               <p className="text-muted-foreground">Загрузка заказов...</p>
+            </div>
+          ) : filteredOrders.length === 0 && orders.length > 0 ? (
+            <div className="text-center py-12">
+              <Icon name="Search" size={64} className="mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-lg font-semibold mb-2">Заказы не найдены</h3>
+              <p className="text-muted-foreground mb-4">
+                Попробуйте изменить фильтры
+              </p>
+              <Button variant="outline" onClick={resetFilters}>
+                Сбросить фильтры
+              </Button>
             </div>
           ) : orders.length === 0 ? (
             <div className="text-center py-12">
@@ -99,7 +193,7 @@ export default function MyOrdersDialog({ isOpen, onClose, userEmail }: MyOrdersD
               </p>
             </div>
           ) : (
-            orders.map(order => (
+            filteredOrders.map(order => (
               <Card key={order.id}>
                 <CardContent className="p-6">
                   <div className="space-y-4">
