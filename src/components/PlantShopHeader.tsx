@@ -209,7 +209,10 @@ export default function PlantShopHeader({
                       <Button 
                         variant="outline" 
                         className="w-full justify-start text-destructive hover:text-destructive"
-                        onClick={() => setIsAuthenticated(false)}
+                        onClick={() => {
+                          localStorage.removeItem('user_auth');
+                          setIsAuthenticated(false);
+                        }}
                       >
                         <Icon name="LogOut" size={18} className="mr-2" />
                         Выйти

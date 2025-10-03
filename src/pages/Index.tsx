@@ -48,6 +48,20 @@ export default function Index() {
   useEffect(() => {
     loadData();
     
+    const savedAuth = localStorage.getItem('user_auth');
+    if (savedAuth) {
+      const authData = JSON.parse(savedAuth);
+      const expiryTime = authData.expiry;
+      const now = Date.now();
+      
+      if (now < expiryTime) {
+        setIsAuthenticated(true);
+        setUserName(authData.userName);
+      } else {
+        localStorage.removeItem('user_auth');
+      }
+    }
+    
     const interval = setInterval(() => {
       loadData();
     }, 5000);
@@ -82,8 +96,13 @@ export default function Index() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    const userName = 'Садовод';
     setIsAuthenticated(true);
-    setUserName('Садовод');
+    setUserName(userName);
+    
+    const expiry = Date.now() + 15 * 60 * 1000;
+    localStorage.setItem('user_auth', JSON.stringify({ userName, expiry }));
+    
     toast({
       title: 'Добро пожаловать!',
       description: 'Вы успешно вошли в систему'
@@ -92,8 +111,13 @@ export default function Index() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
+    const userName = 'Садовод';
     setIsAuthenticated(true);
-    setUserName('Садовод');
+    setUserName(userName);
+    
+    const expiry = Date.now() + 15 * 60 * 1000;
+    localStorage.setItem('user_auth', JSON.stringify({ userName, expiry }));
+    
     toast({
       title: 'Регистрация успешна!',
       description: 'Ваш аккаунт создан'
