@@ -32,7 +32,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         if method == 'GET':
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute('SELECT key, value FROM site_settings WHERE key != %s', ('admin_password',))
+                cur.execute("SELECT key, value FROM site_settings WHERE key != 'admin_password'")
                 settings = cur.fetchall()
                 
                 settings_dict = {s['key']: s['value'] for s in settings}
@@ -89,13 +89,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             with conn.cursor() as cur:
                 for key, value in body_data.items():
                     if key != 'admin_password':
-                        cur.execute(
-                            '''INSERT INTO site_settings (key, value) 
-                               VALUES (%s, %s) 
-                               ON CONFLICT (key) 
-                               DO UPDATE SET value = %s, updated_at = CURRENT_TIMESTAMP''',
-                            (key, value, value)
-                        )
+                        escaped_key = key.replace("'", "''")
+                        escaped_value = value.replace("'", "''")
+                        cur.execute(f"""
+                            INSERT INTO site_settings (key, value) 
+                            VALUES ('{escaped_key}', '{escaped_value}') 
+                            ON CONFLICT (key) 
+                            DO UPDATE SET value = '{escaped_value}', updated_at = CURRENT_TIMESTAMP
+                        """)
                 conn.commit()
                 
                 return {
