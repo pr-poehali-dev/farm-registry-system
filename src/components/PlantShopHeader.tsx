@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import CheckoutDialog from '@/components/CheckoutDialog';
 import MyOrdersDialog from '@/components/MyOrdersDialog';
+import AdminPanelDialog from '@/components/admin/AdminPanelDialog';
 
 interface Plant {
   id: number;
@@ -65,6 +66,7 @@ export default function PlantShopHeader({
 }: PlantShopHeaderProps) {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isOrdersOpen, setIsOrdersOpen] = useState(false);
+  const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
   return (
     <>
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm">
@@ -223,6 +225,16 @@ export default function PlantShopHeader({
                       </div>
                     </div>
                     <div className="space-y-2">
+                      {userRole === 'admin' && (
+                        <Button 
+                          variant="default" 
+                          className="w-full justify-start"
+                          onClick={() => setIsAdminPanelOpen(true)}
+                        >
+                          <Icon name="Shield" size={18} className="mr-2" />
+                          Админ-панель
+                        </Button>
+                      )}
                       <Button 
                         variant="outline" 
                         className="w-full justify-start"
@@ -328,6 +340,11 @@ export default function PlantShopHeader({
         onClose={() => setIsOrdersOpen(false)}
         userEmail={userEmail}
         onGoToCatalog={() => setActiveTab('catalog')}
+      />
+
+      <AdminPanelDialog
+        isOpen={isAdminPanelOpen}
+        onClose={() => setIsAdminPanelOpen(false)}
       />
     </>
   );
