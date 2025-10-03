@@ -20,6 +20,7 @@ export default function SettingsManagement({ settings, adminPassword, onSettings
     const formData = new FormData(e.target as HTMLFormElement);
     
     const updatedSettings = {
+      site_name: formData.get('site_name') as string,
       phone: formData.get('phone') as string,
       email: formData.get('email') as string,
       address: formData.get('address') as string,
@@ -62,6 +63,10 @@ export default function SettingsManagement({ settings, adminPassword, onSettings
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUpdateSettings} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="site_name">Название сайта</Label>
+              <Input id="site_name" name="site_name" defaultValue={settings.site_name || 'Plant Shop'} required />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="phone">Телефон</Label>
               <Input id="phone" name="phone" defaultValue={settings.phone} required />

@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import LoginForm from '@/components/admin/LoginForm';
 import PlantsManagement from '@/components/admin/PlantsManagement';
 import SettingsManagement from '@/components/admin/SettingsManagement';
+import OrdersManagement from '@/components/admin/OrdersManagement';
 import type { Plant, Settings } from '@/types/admin';
 
 const PLANTS_API = 'https://functions.poehali.dev/98192740-b9c9-4e26-8011-0e62528d35d5';
@@ -112,10 +113,14 @@ export default function Admin() {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="plants">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-2xl">
             <TabsTrigger value="plants">
               <Icon name="Sprout" size={18} className="mr-2" />
               Растения
+            </TabsTrigger>
+            <TabsTrigger value="orders">
+              <Icon name="Package" size={18} className="mr-2" />
+              Заказы
             </TabsTrigger>
             <TabsTrigger value="settings">
               <Icon name="Settings" size={18} className="mr-2" />
@@ -128,6 +133,13 @@ export default function Admin() {
               plants={plants}
               adminPassword={adminPassword}
               onPlantsUpdate={setPlants}
+              onToast={toast}
+            />
+          </TabsContent>
+
+          <TabsContent value="orders" className="space-y-4">
+            <OrdersManagement
+              adminPassword={adminPassword}
               onToast={toast}
             />
           </TabsContent>

@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "name": "Get all orders as admin",
+      "method": "GET",
+      "headers": {
+        "X-Admin-Password": "admin123"
+      },
+      "expectedStatus": 200
+    }
+  ]
+}
